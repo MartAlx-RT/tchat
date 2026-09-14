@@ -1,3 +1,4 @@
+// TODO: remove useless includes
 #include "db_defs.h"
 #include <assert.h>
 #include <stdio.h>
@@ -8,6 +9,8 @@
 #include <sys/stat.h>
 #include <sys/sendfile.h>
 #include <string.h>
+
+// TODO: comments
 
 int db_peek_entry_header(int fd, db_entry_header_t *header)
 {
@@ -42,6 +45,7 @@ int db_read_entry(int fd, db_entry_t *entry)
 	return !!read(fd, entry->msg, entry->header.msg_len);
 }
 
+// TODO: test and debug `db_clear`
 void db_clear(void)
 {
 	int fd = open(DB_FILENAME, O_RDONLY);
@@ -78,6 +82,7 @@ void db_clear(void)
 	close(fd);
 }
 
+// TODO: useless?
 void db_flush(void)
 {
 	truncate(DB_FILENAME, 0);
@@ -106,6 +111,7 @@ void db_mark_entry(int fd, int valid)
 	pwrite(fd, &header, sizeof(header), lseek(fd, 0, SEEK_CUR));
 }
 
+// TODO: add db_watch
 void db_dump(void)
 {
 	int fd = open(DB_FILENAME, O_RDONLY);

@@ -21,6 +21,7 @@ typedef struct db_entry_t
 
 static const char *DB_FILENAME = "/tmp/terminals_db";
 
+// TODO: comments
 int db_peek_entry_header(int fd, db_entry_header_t *header);
 void db_next_entry(int fd);
 int db_read_entry(int fd, db_entry_t *entry);

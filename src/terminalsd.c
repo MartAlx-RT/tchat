@@ -1,3 +1,4 @@
+// TODO: remove useless includes
 #include <assert.h>
 #include <err.h>
 #include <fcntl.h>
@@ -10,6 +11,7 @@
 #include <sys/sendfile.h>
 #include "db_defs.h"
 
+// TODO: watch mode
 static void print_help(const char *progname)
 {
 	assert(progname);
@@ -23,6 +25,7 @@ static void print_help(const char *progname)
 			progname);
 }
 
+// TODO: db_clear
 static int run(void)
 {
 	if(access(DB_FILENAME, F_OK) == 0)

@@ -1,4 +1,5 @@
 CC = clang
+# TODO: rename -> tchatd
 DAEMON_NAME = terminalsd
 PROG_NAME = terminals
 
@@ -20,7 +21,7 @@ PROG_OBJECTS = $(PROG_SOURCES:src/%.c=build/%.o)
 
 DEPS = $(DAEMON_OBJECTS:.o=.d) $(PROG_OBJECTS:.o=.d)
 
-all:	$(PROG_NAME) $(DAEMON_NAME) | Makefile
+all:	$(PROG_NAME) $(DAEMON_NAME)
 
 $(PROG_NAME):	$(PROG_OBJECTS)
 	@echo [Linking]
@@ -49,3 +50,4 @@ Makefile:
 .PHONY:	clean all
 
 -include $(DEPS)
+
