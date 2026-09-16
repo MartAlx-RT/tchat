@@ -35,7 +35,7 @@ int db_peek_entry_header(int fd, db_entry_header_t *header);
 void db_next_entry(int fd);
 
 /*
- * Reads current entry
+ * Reads current entry.
  */
 int db_read_entry(int fd, db_entry_t *entry);
 
@@ -46,28 +46,28 @@ int db_read_entry(int fd, db_entry_t *entry);
 void db_clear(time_t timeout);
 
 /*
- * Flushes database (clears all entries)
+ * Flushes database (clears all entries).
  */
 void db_flush(void);
 
 /*
- * Writes entry to the database
+ * Writes entry to the database.
  */
 void db_write_entry(const db_entry_t *entry);
 
 /*
  * Sets `valid` field of `db_entry_header_t` structure
- * to 'valid' for current entry
+ * to 'valid' for current entry.
  */
 void db_mark_entry(int fd, int valid);
 
 /*
- * Prints all entries in database
+ * Prints all entries in database.
  */
 void db_dump(void);
 
 /*
- * Gets daemon pid
+ * Gets daemon pid.
  */
 pid_t db_get_daemon_pid(void);
 

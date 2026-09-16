@@ -59,8 +59,8 @@ int main(int argc, char *argv[])
 static void print_help(void)
 {
 	warnx(
-			"Usage:\t <command>\n"
-			"command may be one of the following:\n"
+			"Usage:\t <command>\n\n"
+			"\tcommand may be one of the following:\n"
 			"\thelp\tprint this msg and exit\n"
 			"\trun\trun a daemon\n"
 			"\tdump\tdump database\n"

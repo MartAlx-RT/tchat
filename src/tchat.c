@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <err.h>
 #include <stdlib.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <time.h>
 #include <x86intrin.h>
@@ -8,6 +9,7 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <readline/readline.h>
+#include <readline/history.h>
 #include <unistd.h>
 #include "db.h"
 #include <signal.h>
@@ -21,6 +23,8 @@ static int cli_read_pid(pid_t *pid);
 static int cli_read_msg(char **msg);
 static int lookup_msg(void);
 static int send_msg(pid_t receiver_pid, pid_t sender_pid, char *msg);
+[[noreturn]] static void child_do(void);
+[[noreturn]] static void parent_do(pid_t child_pid);
 
 int main(void)
 {
@@ -33,40 +37,49 @@ int main(void)
 	if(pid < 0)
 		err(EXIT_FAILURE, "fork");
 	else if(pid == 0)
-	{
-		while(1)
-		{
-			if(lookup_msg())
-				_exit(1);
-
-			sleep(LOOKUP_MSG_TIME);
-		}
-	}
+		child_do();
 	else
-	{
-		pid_t receiver_pid = 0;
-		char *msg = NULL;
-		int need_continue = 1;
-
-		fprintf(stderr, "[Welcome to tchat! Your pid is %d]\n", getpid());
-		do
-		{
-			need_continue = cli(&receiver_pid, &msg, pid);
-
-			if(need_continue && send_msg(receiver_pid, getpid(), msg))
-			{
-				kill(pid, SIGQUIT);
-				errx(1, "Can't send message");
-			}
-		}
-		while(need_continue);
-
-		kill(pid, SIGQUIT);
-		fprintf(stderr, "[Quit.]\n");
-		_exit(0);
-	}
+		parent_do(pid);
 
 	assert(0 && "Unreachable");
+}
+
+[[noreturn]] static void child_do(void)
+{
+	while(1)
+	{
+		if(lookup_msg())
+			_exit(1);
+
+		sleep(LOOKUP_MSG_TIME);
+	}
+}
+
+[[noreturn]] static void parent_do(pid_t child_pid)
+{
+	pid_t receiver_pid = 0;
+	char *msg = NULL;
+	int need_continue = 1;
+
+	/* init readline history */
+	using_history();
+
+	fprintf(stderr, "[Welcome to tchat! Your pid is %d]\n", getpid());
+	do
+	{
+		need_continue = cli(&receiver_pid, &msg, child_pid);
+
+		if(need_continue && send_msg(receiver_pid, getpid(), msg))
+		{
+			kill(child_pid, SIGQUIT);
+			errx(1, "Can't send message");
+		}
+	}
+	while(need_continue);
+
+	kill(child_pid, SIGQUIT);
+	fprintf(stderr, "[Quit.]\n");
+	_exit(0);
 }
 
 static void sigchld_handler([[maybe_unused]] int sig)
@@ -163,6 +176,7 @@ static int cli_read_pid(pid_t *pid)
 		else
 			is_read = 1;
 
+		add_history(line);
 		free(line);
 	}
 	while(!is_read);
@@ -187,6 +201,7 @@ static int cli(pid_t *pid, char **msg, pid_t ch_pid)
 	/* waiting for input (in read mode) */
 	int retval = (getchar() != EOF);
 
+	/* Don't spam input msgs while typing */
 	kill(ch_pid, SIGSTOP);
 	retval = retval && cli_read_pid(pid) && cli_read_msg(msg);
 	kill(ch_pid, SIGCONT);
