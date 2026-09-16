@@ -1,7 +1,7 @@
 CC = clang
-# TODO: rename -> tchatd
-DAEMON_NAME = terminalsd
-PROG_NAME = terminals
+
+DAEMON_NAME = tchatd
+PROG_NAME = tchat
 
 CFLAGS += -g -Wall -Wextra -Wshadow -fsanitize=address,leak $(IFLAGS)
 
@@ -13,8 +13,8 @@ ifneq ($(VERBOSE), ON)
 	V := @
 endif
 
-DAEMON_SOURCES = src/terminalsd.c src/db.c
-PROG_SOURCES =  src/db.c src/send_msg.c
+DAEMON_SOURCES = src/tchatd.c src/db.c
+PROG_SOURCES =  src/db.c src/tchat.c
 
 DAEMON_OBJECTS = $(DAEMON_SOURCES:src/%.c=build/%.o)
 PROG_OBJECTS = $(PROG_SOURCES:src/%.c=build/%.o)
@@ -34,7 +34,7 @@ $(DAEMON_NAME):	$(DAEMON_OBJECTS)
 	@echo [Done.]
 
 build/%.o:	src/%.c | build
-	@echo [Building CXX]
+	@echo [Building C]
 	$V $(CC) -c -MMD -MP -o $@ $(CFLAGS) $<
 
 build:
