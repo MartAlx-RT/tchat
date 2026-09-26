@@ -16,6 +16,8 @@ const time_t DB_CLEAR_TIMEOUT = 10;
 const time_t DB_CLEAR_SLEEP_TIME = 5;
 
 static void print_help(void);
+static int is_running(void);
+
 [[noreturn]] static void quit_handler(int sig);
 [[noreturn]] static void watch(void);
 [[noreturn]] static void run(void);
@@ -60,13 +62,19 @@ static void print_help(void)
 {
 	warnx(
 			"Usage:\t <command>\n\n"
-			"\tcommand may be one of the following:\n"
+			"<command> can be one of the following:\n\n"
 			"\thelp\tprint this msg and exit\n"
 			"\trun\trun a daemon\n"
 			"\tdump\tdump database\n"
 			"\tstop\tstop a daemon\n"
 			"\twatch\trun dump in loop\n"
+			"\tstatus\tshow daemon status\n"
 	     );
+}
+
+static int is_running(void)
+{
+
 }
 
 [[noreturn]] static void quit_handler([[maybe_unused]] int sig)
@@ -83,7 +91,7 @@ static void print_help(void)
 	signal(SIGQUIT, quit_handler);
 
 	fprintf(stderr,
-			"[Watch mode activated."
+			"[Watch mode activated. "
 			"Send SIGINT (Ctrl+C) or SIGQUIT to exit]\n"
 	       );
 	while(1)

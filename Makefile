@@ -8,6 +8,7 @@ CFLAGS += -g -Wall -Wextra -Wshadow -fsanitize=address,leak $(IFLAGS)
 IFLAGS = -Iinclude
 lFLAGS = -lreadline
 
+# Verbose flag
 V :=
 ifneq ($(VERBOSE), ON)
 	V := @
@@ -42,10 +43,6 @@ build:
 
 clean:
 	$V rm -rf build $(PROG_NAME) $(DAEMON_NAME)
-
-Makefile:
-	@echo [Makefile has been changed, rebuilding]
-	@make clean
 
 .PHONY:	clean all
 

@@ -20,14 +20,17 @@ int db_peek_entry_header(int fd, db_entry_header_t *header)
 	       );
 }
 
-void db_next_entry(int fd)
+int db_next_entry(int fd)
 {
 	assert(fd > 0);
 
 	db_entry_header_t header = {};
-	db_peek_entry_header(fd, &header);
+	if(!db_peek_entry_header(fd, &header))
+		return 0;
 
 	lseek(fd, sizeof(header) + header.msg_len, SEEK_CUR);
+
+	return 1;
 }
 
 int db_read_entry(int fd, db_entry_t *entry)
@@ -52,7 +55,7 @@ int db_read_entry(int fd, db_entry_t *entry)
 void db_clear(time_t timeout)
 {
 	int fd = open(DB_FILENAME, O_RDONLY);
-	assert(fd > 0);
+	if(fd < 0) return;
 
 	db_entry_t daemon_entry = {};
 	db_read_entry(fd, &daemon_entry);
@@ -97,29 +100,33 @@ void db_flush(void)
 	truncate(DB_FILENAME, sizeof(db_entry_header_t));
 }
 
-void db_write_entry(const db_entry_t *entry)
+int db_write_entry(const db_entry_t *entry)
 {
 	assert(entry);
 
 	int fd = open(DB_FILENAME, O_WRONLY | O_APPEND);
-	assert(fd > 0);
+	if(fd < 0) return 0;
 
-	write(fd, &entry->header, sizeof(entry->header));
-	write(fd, entry->msg, entry->header.msg_len);
+	return (
+		 write(fd, &entry->header, sizeof(entry->header)) &&
+		 write(fd, entry->msg, entry->header.msg_len)
+		);
 }
 
-void db_mark_entry(int fd, int valid)
+int db_mark_entry(int fd, int valid)
 {
 	assert(fd > 0);
 
 	db_entry_header_t header = {};
 	if(!db_peek_entry_header(fd, &header))
-		return;
+		return 0;
 
 	header.valid = valid;
-	pwrite(fd, &header, sizeof(header), lseek(fd, 0, SEEK_CUR));
+
+	return !!pwrite(fd, &header, sizeof(header), lseek(fd, 0, SEEK_CUR));
 }
 
+// TODO: write `load`
 void db_dump(void)
 {
 	int fd = open(DB_FILENAME, O_RDONLY);
@@ -144,15 +151,18 @@ void db_dump(void)
 				entry.msg);
 		free(entry.msg);
 	}
+
+	fputc('\n', stderr);
 }
 
 pid_t db_get_daemon_pid(void)
 {
 	int fd = open(DB_FILENAME, O_RDONLY);
-	assert(fd > 0);
+	if(fd < 0) return -1;
 
 	db_entry_header_t header = {};
-	db_peek_entry_header(fd, &header);
+	if(!db_peek_entry_header(fd, &header))
+		return -1;
 
 	return header.sender_pid;
 }

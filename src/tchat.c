@@ -59,23 +59,20 @@ int main(void)
 {
 	pid_t receiver_pid = 0;
 	char *msg = NULL;
-	int need_continue = 1;
+
+	fprintf(stderr, "[Welcome to tchat! Your pid is %d]\n", getpid());
 
 	/* init readline history */
 	using_history();
 
-	fprintf(stderr, "[Welcome to tchat! Your pid is %d]\n", getpid());
-	do
+	while(cli(&receiver_pid, &msg, child_pid))
 	{
-		need_continue = cli(&receiver_pid, &msg, child_pid);
-
-		if(need_continue && send_msg(receiver_pid, getpid(), msg))
+		if(send_msg(receiver_pid, getpid(), msg))
 		{
 			kill(child_pid, SIGQUIT);
 			errx(1, "Can't send message");
 		}
 	}
-	while(need_continue);
 
 	kill(child_pid, SIGQUIT);
 	fprintf(stderr, "[Quit.]\n");
