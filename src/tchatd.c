@@ -16,7 +16,6 @@ const time_t DB_CLEAR_TIMEOUT = 10;
 const time_t DB_CLEAR_SLEEP_TIME = 5;
 
 static void print_help(void);
-static int is_running(void);
 
 [[noreturn]] static void quit_handler(int sig);
 [[noreturn]] static void watch(void);
@@ -70,11 +69,6 @@ static void print_help(void)
 			"\twatch\trun dump in loop\n"
 			"\tstatus\tshow daemon status\n"
 	     );
-}
-
-static int is_running(void)
-{
-
 }
 
 [[noreturn]] static void quit_handler([[maybe_unused]] int sig)
